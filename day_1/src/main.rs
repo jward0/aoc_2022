@@ -4,6 +4,35 @@ use std::{
 };
 
 
+fn speedrun<R: Read>(io: R) -> () {
+    let br = BufReader::new(io);
+    let mut best: [i64; 3] = [0, 0, 0];
+    let mut temp: i64 = 0;
+    for line in br.lines() {
+        let l = line.unwrap();
+        if l.is_empty() {
+            if temp > best[2] {
+                best[2] = temp;
+            }
+            if temp > best[1] {
+                best[2] = best[1];
+                best[1] = temp;
+            }
+            if temp > best[0] {
+                best[1] = best[0];
+                best[0] = temp;
+            }
+            temp = 0;
+        }
+        else {
+            temp += l.parse::<i64>().unwrap();
+        }
+    }
+    println!("{}", best[0]);
+    println!("{}", best.into_iter().sum::<i64>());
+}
+
+
 fn sorted_inputs_from_file<R: Read>(io: R) -> Result<Vec<Vec<i64>>, Error> {
     let br = BufReader::new(io);
     let mut output_vec = vec![];
@@ -39,8 +68,13 @@ fn part_2(input:&Vec<Vec<i64>>) -> Result<i64, Error> {
 
 
 fn main() -> Result<(), Error> {
+
+    speedrun(File::open("input.txt")?);
+
     let input = sorted_inputs_from_file(File::open("input.txt")?)?;
     println!("{}", part_1(&input)?);
     println!("{}", part_2(&input)?);
+
+
     Ok(())
 }
